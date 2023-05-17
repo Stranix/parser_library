@@ -1,9 +1,14 @@
 import os
+import urllib
+from urllib.parse import urljoin
+
 import requests
 
 from bs4 import BeautifulSoup
 from pathvalidate import sanitize_filename
 from dataclasses import dataclass
+
+SITE_LINK = 'https://tululu.org/'
 
 
 @dataclass
@@ -16,7 +21,7 @@ class Book:
 
 def check_for_redirect(response: requests.Response):
     response.raise_for_status()
-    if response.url == 'https://tululu.org/':
+    if response.url == SITE_LINK:
         raise requests.HTTPError
 
 
@@ -24,9 +29,10 @@ def fetch_books():
     for book_id in range(1, 11):
         try:
             book = get_book(book_id)
-            url = f'https://tululu.org/txt.php?id={book.id}'
+            url = '{}txt.php?id={}'.format(SITE_LINK, book.id)
             file_name = '{}_{}'.format(book_id, book.title)
             download_txt(url, file_name)
+            download_image(book.poster_link)
         except requests.HTTPError:
             continue
 
@@ -50,8 +56,27 @@ def download_txt(url, filename, folder='books/') -> str:
     return path_to_save
 
 
+def download_image(url, folder='images/') -> str:
+    """Функция для скачивания картинок.
+    Args:
+        url (str): Cсылка на изображение, который хочется скачать.
+        folder (str): Папка, куда сохранять.
+    Returns:
+        str: Путь до файла, куда сохранён текст.
+    """
+    response = requests.get(url)
+    check_for_redirect(response)
+
+    filename = get_image_name_from_url(url)
+    path_to_save = os.path.join(folder, filename)
+    os.makedirs(folder, exist_ok=True)
+    with open(path_to_save, mode='wb') as file:
+        file.write(response.content)
+    return path_to_save
+
+
 def get_book(book_id: int) -> Book:
-    url = f'https://tululu.org/b{book_id}/'
+    url = '{}b{}/'.format(SITE_LINK, book_id)
     response = requests.get(url)
     response.raise_for_status()
     check_for_redirect(response)
@@ -63,7 +88,18 @@ def get_book(book_id: int) -> Book:
     book_title = split_title_tag[0].strip()
     book_author = split_title_tag[1].strip()
 
-    return Book(book_id, book_title, book_author)
+    book_poster_link = soup.find('div', class_='bookimage') \
+        .find('img') \
+        .get('src')
+    book_poster_link = urljoin(SITE_LINK, book_poster_link)
+
+    return Book(book_id, book_title, book_author, book_poster_link)
+
+
+def get_image_name_from_url(url: str) -> str:
+    split_result = urllib.parse.urlsplit(url)
+    url_path = split_result.path
+    return url_path.split('/')[-1]
 
 
 def main():
