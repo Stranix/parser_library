@@ -17,6 +17,7 @@ class Book:
     title: str
     author: str
     comments: list
+    genres: list
     poster_link: str = ''
 
 
@@ -97,7 +98,17 @@ def get_book(book_id: int) -> Book:
     comment_div_tags = soup.find_all('div', class_='texts')
     comments = [comment.find('span').text for comment in comment_div_tags]
 
-    return Book(book_id, book_title, book_author, comments, book_poster_link)
+    genre_tags = soup.find('span', class_='d_book').find_all('a')
+    genres = [genre.text for genre in genre_tags]
+
+    return Book(
+        book_id,
+        book_title,
+        book_author,
+        comments,
+        genres,
+        book_poster_link
+    )
 
 
 def get_image_name_from_url(url: str) -> str:
