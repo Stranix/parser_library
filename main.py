@@ -1,14 +1,47 @@
 import os
+import sys
 import urllib
-from urllib.parse import urljoin
-
+import argparse
 import requests
 
 from bs4 import BeautifulSoup
-from pathvalidate import sanitize_filename
+from urllib.parse import urljoin
 from dataclasses import dataclass
+from pathvalidate import sanitize_filename
+
 
 SITE_LINK = 'https://tululu.org/'
+
+
+def create_arg_parser():
+    description = 'Качаем книги для деда =)'
+    epilog = """
+    Скаченные книги сохраняются в папку ./books
+    Скаченные обложки книг сохраняются в папку ./images
+    """
+    arg_parser = argparse.ArgumentParser(
+        description=description,
+        epilog=epilog
+    )
+    arg_parser.add_argument('start', default=1, metavar='', type=int,
+                            help='''id книги с которой начнем парсить. 
+                                Значение по умолчанию 1 ''', nargs='?'
+                            )
+    arg_parser.add_argument('end', default=11, metavar='', type=int,
+                            help='''id книги до которой парсим. 
+                                Значение по умолчанию 11 ''', nargs='?'
+                            )
+    arg_parser.add_argument('--start_id', metavar='', type=int,
+                            help='''id книги с которой начнем парсить. 
+                            Значение по умолчанию 1 '''
+                            )
+
+    arg_parser.add_argument('--end_id', metavar='', type=int,
+                            help='''id книги до которой парсим. 
+                            Значение по умолчанию 11 '''
+                            )
+
+    return arg_parser
 
 
 @dataclass
@@ -28,8 +61,8 @@ def check_for_redirect(response: requests.Response):
         raise requests.HTTPError
 
 
-def fetch_books():
-    for book_id in range(1, 11):
+def fetch_books(start_id: int, end_id: int):
+    for book_id in range(start_id, end_id):
         try:
             book = get_book(book_id)
             file_name = '{}_{}'.format(book_id, book.title)
@@ -126,7 +159,22 @@ def parse_book_page(html_content: str) -> dict:
 
 
 def main():
-    fetch_books()
+    parser = create_arg_parser()
+    args = parser.parse_args()
+    start_id = args.start
+    end_id = args.end
+
+    if args.start_id:
+        start_id = args.start_id
+
+    if args.end_id:
+        end_id = args.end_id
+
+    if start_id > end_id:
+        print('id стартовой книги не может быть больше id конечной книги')
+        sys.exit()
+
+    fetch_books(start_id, end_id)
 
 
 if __name__ == '__main__':
