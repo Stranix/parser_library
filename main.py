@@ -16,6 +16,7 @@ class Book:
     id: int
     title: str
     author: str
+    comments: list
     poster_link: str = ''
 
 
@@ -93,7 +94,10 @@ def get_book(book_id: int) -> Book:
         .get('src')
     book_poster_link = urljoin(SITE_LINK, book_poster_link)
 
-    return Book(book_id, book_title, book_author, book_poster_link)
+    comment_div_tags = soup.find_all('div', class_='texts')
+    comments = [comment.find('span').text for comment in comment_div_tags]
+
+    return Book(book_id, book_title, book_author, comments, book_poster_link)
 
 
 def get_image_name_from_url(url: str) -> str:
