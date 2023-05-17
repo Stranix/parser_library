@@ -18,6 +18,7 @@ class Book:
     author: str
     comments: list
     genres: list
+    download_link: str = ''
     poster_link: str = ''
 
 
@@ -31,9 +32,8 @@ def fetch_books():
     for book_id in range(1, 11):
         try:
             book = get_book(book_id)
-            url = '{}txt.php?id={}'.format(SITE_LINK, book.id)
             file_name = '{}_{}'.format(book_id, book.title)
-            download_txt(url, file_name)
+            download_txt(book.download_link, file_name)
             download_image(book.poster_link)
         except requests.HTTPError:
             continue
@@ -80,10 +80,23 @@ def download_image(url, folder='images/') -> str:
 def get_book(book_id: int) -> Book:
     url = '{}b{}/'.format(SITE_LINK, book_id)
     response = requests.get(url)
-    response.raise_for_status()
     check_for_redirect(response)
 
-    soup = BeautifulSoup(response.text, 'lxml')
+    book = parse_book_page(response.text)
+    book['id'] = book_id
+    book['download_link'] = urljoin(SITE_LINK, f'txt.php?id={book_id}')
+
+    return Book(**book)
+
+
+def get_image_name_from_url(url: str) -> str:
+    split_result = urllib.parse.urlsplit(url)
+    url_path = split_result.path
+    return url_path.split('/')[-1]
+
+
+def parse_book_page(html_content: str) -> dict:
+    soup = BeautifulSoup(html_content, 'lxml')
     title_tag = soup.find('h1')
     split_title_tag = title_tag.text.split('::')
 
@@ -101,20 +114,15 @@ def get_book(book_id: int) -> Book:
     genre_tags = soup.find('span', class_='d_book').find_all('a')
     genres = [genre.text for genre in genre_tags]
 
-    return Book(
-        book_id,
-        book_title,
-        book_author,
-        comments,
-        genres,
-        book_poster_link
-    )
+    book = {
+        'title': book_title,
+        'author': book_author,
+        'comments': comments,
+        'genres': genres,
+        'poster_link': book_poster_link
+    }
 
-
-def get_image_name_from_url(url: str) -> str:
-    split_result = urllib.parse.urlsplit(url)
-    url_path = split_result.path
-    return url_path.split('/')[-1]
+    return book
 
 
 def main():
