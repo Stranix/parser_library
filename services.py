@@ -49,6 +49,7 @@ def fetch_books(start_id: int, end_id: int):
             download_txt(book.download_link, file_name)
             download_image(book.poster_link)
         except requests.HTTPError:
+            print('Не удалось скачать книгу или обложку. id -', book_id)
             continue
 
 
