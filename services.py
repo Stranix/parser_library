@@ -1,4 +1,5 @@
 import os
+import time
 import urllib
 import requests
 
@@ -32,16 +33,16 @@ def check_for_redirect(response: requests.Response):
         raise requests.HTTPError
 
 
-def fetch_books(start_id: int, end_id: int):
-    """Качает и сохраняет в диапазоне книги и обложки с сайта tululu.org.
+def fetch_books(book_id: int):
+    """Качает и сохраняет книгу и обложку с сайта tululu.org.
 
-    :param start_id: Id первой книги.
-    :param end_id: Id последней книги.
+    :param book_id: ID книги для скачивания.
 
     :return: tuple(id стартовой книги, id конечной книги).
     """
-
-    for book_id in range(start_id, end_id):
+    is_loaded = False
+    while not is_loaded:
+        print('Скачиваем книгу - ', book_id)
         try:
             book = get_book(book_id)
 
@@ -53,12 +54,22 @@ def fetch_books(start_id: int, end_id: int):
             download_txt(book.download_link, file_name, request_params)
             download_image(book.poster_link)
 
+            is_loaded = True
+
         except requests.HTTPError:
             print('Не удалось скачать книгу или обложку. id -', book_id)
-            continue
+            break
+
+        except (requests.ConnectionError, requests.ConnectTimeout):
+            print(
+                'Ошибка соединения, попытаюсь через 5 секунд повторно '
+                'скачать книгу'
+            )
+            time.sleep(5)
+            fetch_books(book_id)
 
 
-def download_txt(url, filename, params=None, folder='books/' ) -> str:
+def download_txt(url, filename, params=None, folder='books/') -> str:
     """Качает текстовый файл по-указанному url и сохраняет на диск.
 
     :param url: ссылка на скачивание.

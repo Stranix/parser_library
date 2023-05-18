@@ -1,3 +1,4 @@
+import sys
 import argparse
 
 from services import fetch_books
@@ -29,10 +30,14 @@ def create_arg_parser():
 
 
 def main():
-    parser = create_arg_parser()
-    start_book_id, end_book_id = parse_script_args(parser)
-
-    fetch_books(start_book_id, end_book_id)
+    try:
+        parser = create_arg_parser()
+        start_book_id, end_book_id = parse_script_args(parser)
+        for book_id in range(start_book_id, end_book_id):
+            fetch_books(book_id)
+    except KeyboardInterrupt:
+        print('Работа скрипта остановлена')
+        sys.exit()
 
 
 if __name__ == '__main__':
