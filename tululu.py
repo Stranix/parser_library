@@ -14,20 +14,13 @@ def create_arg_parser():
         description=description,
         epilog=epilog
     )
-    arg_parser.add_argument('start', default=1, metavar='', type=int,
-                            help='''id книги с которой начнем парсить. 
-                                Значение по умолчанию 1 ''', nargs='?'
-                            )
-    arg_parser.add_argument('end', default=11, metavar='', type=int,
-                            help='''id книги до которой парсим. 
-                                Значение по умолчанию 11 ''', nargs='?'
-                            )
-    arg_parser.add_argument('--start_id', metavar='', type=int,
+
+    arg_parser.add_argument('--start_id', default=1, metavar='', type=int,
                             help='''id книги с которой начнем парсить. 
                             Значение по умолчанию 1 '''
                             )
 
-    arg_parser.add_argument('--end_id', metavar='', type=int,
+    arg_parser.add_argument('--end_id', default=11, metavar='', type=int,
                             help='''id книги до которой парсим. 
                             Значение по умолчанию 11 '''
                             )

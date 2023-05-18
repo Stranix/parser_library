@@ -12,14 +12,8 @@ def parse_script_args(parser: argparse.ArgumentParser) -> tuple:
     :return: tuple(id стартовой книги, id конечной книги).
     """
     args = parser.parse_args()
-    start_id = args.start
-    end_id = args.end
-
-    if args.start_id:
-        start_id = args.start_id
-
-    if args.end_id:
-        end_id = args.end_id
+    start_id = args.start_id
+    end_id = args.end_id
 
     if start_id > end_id:
         print('id стартовой книги не может быть больше id конечной книги')

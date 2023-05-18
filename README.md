@@ -23,10 +23,6 @@ python3 tululu.py
 
 ### Аргументы
 Возможные аргументы скрипта:
-- Позиционные:
-  - `start` - id начальной книги.
-  - `end` - id финальной книги.
-  
 
 - Опциональные:
   - `--start_id` - id начальной книги.
@@ -34,10 +30,7 @@ python3 tululu.py
 
 Примеры использования:  
 ```shell
-python3 tululu.py 20 30
-```
-```shell
-python3 tululu.py 1 --end_id 10
+python3 tululu.py --end_id 10
 ```
 ```shell
 python3 tululu.py --start_id 2 --end_id 15
