@@ -101,6 +101,7 @@ def get_book(book_id: int) -> Book:
     check_for_redirect(response)
 
     book = parse_book_page(response.text)
+    book['poster_link'] = urljoin(response.url, book['poster_link'])
     book['id'] = book_id
     book['download_link'] = urljoin(
         'https://tululu.org/',

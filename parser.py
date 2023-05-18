@@ -40,7 +40,6 @@ def parse_book_page(html_content: str) -> dict:
     book_poster_link = soup.find('div', class_='bookimage') \
         .find('img') \
         .get('src')
-    book_poster_link = urljoin('https://tululu.org/', book_poster_link)
 
     comment_div_tags = soup.find_all('div', class_='texts')
     comments = [comment.find('span').text for comment in comment_div_tags]
