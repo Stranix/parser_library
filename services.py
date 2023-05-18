@@ -28,7 +28,6 @@ def check_for_redirect(response: requests.Response):
     :param response: Ответ сайта tululu.org.
     """
 
-    response.raise_for_status()
     if response.url == 'https://tululu.org/':
         raise requests.HTTPError
 
@@ -64,6 +63,7 @@ def download_txt(url, filename, folder='books/') -> str:
     """
 
     response = requests.get(url)
+    response.raise_for_status()
     check_for_redirect(response)
 
     filename = sanitize_filename('{}.txt'.format(filename))
@@ -80,6 +80,7 @@ def download_image(url, folder='images/') -> str:
     """
 
     response = requests.get(url)
+    response.raise_for_status()
     check_for_redirect(response)
 
     filename = get_image_name_from_url(url)
@@ -96,6 +97,7 @@ def get_book(book_id: int) -> Book:
 
     url = '{}b{}/'.format('https://tululu.org/', book_id)
     response = requests.get(url)
+    response.raise_for_status()
     check_for_redirect(response)
 
     book = parse_book_page(response.text)
