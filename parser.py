@@ -2,7 +2,6 @@ import sys
 import argparse
 
 from bs4 import BeautifulSoup
-from urllib.parse import urljoin
 
 
 def parse_script_args(parser: argparse.ArgumentParser) -> tuple:

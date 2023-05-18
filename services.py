@@ -44,25 +44,32 @@ def fetch_books(start_id: int, end_id: int):
     for book_id in range(start_id, end_id):
         try:
             book = get_book(book_id)
+
+            request_params = {
+                'id': book.id
+            }
             file_name = '{}_{}'.format(book_id, book.title)
-            download_txt(book.download_link, file_name)
+
+            download_txt(book.download_link, file_name, request_params)
             download_image(book.poster_link)
+
         except requests.HTTPError:
             print('Не удалось скачать книгу или обложку. id -', book_id)
             continue
 
 
-def download_txt(url, filename, folder='books/') -> str:
+def download_txt(url, filename, params=None, folder='books/' ) -> str:
     """Качает текстовый файл по-указанному url и сохраняет на диск.
 
     :param url: ссылка на скачивание.
     :param filename: имя для сохранения.
-    :param folder:папка для сохранения (будет создана если её нет)
+    :param folder: папка для сохранения (будет создана если её нет)
+    :param params: дополнительные параметры запроса
 
     :return: str - Строку с указанием куда сохранили файл.
     """
 
-    response = requests.get(url)
+    response = requests.get(url, params)
     response.raise_for_status()
     check_for_redirect(response)
 
@@ -101,13 +108,10 @@ def get_book(book_id: int) -> Book:
     check_for_redirect(response)
 
     book = parse_book_page(response.text)
-    book['poster_link'] = urljoin(response.url, book['poster_link'])
-    book['id'] = book_id
-    book['download_link'] = urljoin(
-        'https://tululu.org/',
-        f'txt.php?id={book_id}'
-    )
 
+    book['id'] = book_id
+    book['poster_link'] = urljoin(response.url, book['poster_link'])
+    book['download_link'] = urljoin(response.url, '/txt.php')
     return Book(**book)
 
 
