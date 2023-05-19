@@ -40,8 +40,8 @@ def fetch_book(book_id: int):
 
     :return: tuple(id стартовой книги, id конечной книги).
     """
-    is_loaded = False
-    while not is_loaded:
+
+    while True:
         print('Скачиваем книгу - ', book_id)
         try:
             book = get_book(book_id)
@@ -54,7 +54,7 @@ def fetch_book(book_id: int):
             download_txt(book.download_link, file_name, request_params)
             download_image(book.poster_link)
 
-            is_loaded = True
+            break
 
         except requests.HTTPError:
             print('Не удалось скачать книгу или обложку. id -', book_id)
