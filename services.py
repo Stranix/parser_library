@@ -33,7 +33,7 @@ def check_for_redirect(response: requests.Response):
         raise requests.HTTPError
 
 
-def fetch_books(book_id: int):
+def fetch_book(book_id: int):
     """Качает и сохраняет книгу и обложку с сайта tululu.org.
 
     :param book_id: ID книги для скачивания.
@@ -66,7 +66,7 @@ def fetch_books(book_id: int):
                 'скачать книгу'
             )
             time.sleep(5)
-            fetch_books(book_id)
+            fetch_book(book_id)
 
 
 def download_txt(url, filename, params=None, folder='books/') -> str:

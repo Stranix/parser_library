@@ -1,7 +1,7 @@
 import sys
 import argparse
 
-from services import fetch_books
+from services import fetch_book
 
 
 def create_arg_parser():
@@ -40,7 +40,7 @@ def main():
             sys.exit()
 
         for book_id in range(start_book_id, end_book_id):
-            fetch_books(book_id)
+            fetch_book(book_id)
 
     except KeyboardInterrupt:
         print('Работа скрипта остановлена')
