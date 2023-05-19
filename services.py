@@ -42,7 +42,6 @@ def fetch_book(book_id: int):
     """
 
     while True:
-        print('Скачиваем книгу - ', book_id)
         try:
             book = get_book(book_id)
 
@@ -53,7 +52,6 @@ def fetch_book(book_id: int):
 
             download_txt(book.download_link, file_name, request_params)
             download_image(book.poster_link)
-
             break
 
         except requests.HTTPError:
@@ -66,7 +64,6 @@ def fetch_book(book_id: int):
                 'скачать книгу'
             )
             time.sleep(5)
-            fetch_book(book_id)
 
 
 def download_txt(url, filename, params=None, folder='books/') -> str:
