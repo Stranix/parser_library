@@ -2,7 +2,6 @@ import sys
 import argparse
 
 from services import fetch_books
-from parser import parse_script_args
 
 
 def create_arg_parser():
@@ -32,9 +31,17 @@ def create_arg_parser():
 def main():
     try:
         parser = create_arg_parser()
-        start_book_id, end_book_id = parse_script_args(parser)
+        args = parser.parse_args()
+        start_book_id = args.start_id
+        end_book_id = args.end_id
+
+        if start_book_id > end_book_id:
+            print('id стартовой книги не может быть больше id конечной книги')
+            sys.exit()
+
         for book_id in range(start_book_id, end_book_id):
             fetch_books(book_id)
+
     except KeyboardInterrupt:
         print('Работа скрипта остановлена')
         sys.exit()

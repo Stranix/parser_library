@@ -1,24 +1,4 @@
-import sys
-import argparse
-
 from bs4 import BeautifulSoup
-
-
-def parse_script_args(parser: argparse.ArgumentParser) -> tuple:
-    """Парсит аргументы скрипта.
-
-    :param parser: Аргументы скрипта.
-    :return: tuple(id стартовой книги, id конечной книги).
-    """
-    args = parser.parse_args()
-    start_id = args.start_id
-    end_id = args.end_id
-
-    if start_id > end_id:
-        print('id стартовой книги не может быть больше id конечной книги')
-        sys.exit()
-
-    return start_id, end_id
 
 
 def parse_book_page(html_content: str) -> dict:
