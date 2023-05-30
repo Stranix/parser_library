@@ -11,7 +11,8 @@ def parse_category(category_id: int):
     response = requests.get('https://tululu.org/l55/')
     response.raise_for_status()
     check_for_redirect(response)
-    # находим первую книгу с научной фантастикой
-    book_link = urljoin(response.url, parse_category_page(response.text))
-    # выводим ссылку на книгу для послед скачивания
-    print(book_link)
+    # находим все книги с научной фантастикой на странице
+    for book_link in parse_category_page(response.text):
+        book_link_abs = urljoin(response.url, book_link)
+        # выводим ссылку на книгу для последующего скачивания
+        print(book_link_abs)
