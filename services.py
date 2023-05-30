@@ -172,36 +172,35 @@ def save_books_info_as_json_file(filename: str, books_info: list):
     :param filename: имя файла.
     :param books_info: список словарей с информацией о скаченных книгах.
     """
+
     with open(filename, mode='w') as file:
         json.dump(books_info, file, indent=4, ensure_ascii=False)
 
 
-def fetch_books_by_category(category_id: int, pages: int = 5) -> list:
-    """Качаем и сохраняем книги в выбранной категории с сайта tululu.org.
+def get_books_id_in_range_pages_in_category(
+        category_id: int,
+        start_page: int = 1,
+        end_page: int = 1
+) -> list[int]:
+    """Получаем id книг выбранной категории и страниц с сайта tululu.org.
 
     :param category_id: id книжной категории.
-    :param pages: сколько страниц обрабатываем для поиска книг.
+    :param start_page: номер страницы категории откуда начинаем парсить.
+    :param end_page: номер страницы категории на которой заканчиваем парсить.
 
-    :return: list - список словарей о скаченных книгах.
+    :return: list - список id найденных книг в выбранном диапазоне
     """
 
-    books_info = []
-    for category_page in range(1, pages + 1):
-        books_id = get_books_id_from_category_page(
+    books_id = []
+
+    for category_page in range(start_page, end_page + 1):
+        books_id_on_page = get_books_id_from_category_page(
             category_id,
             category_page
         )
+        books_id.extend(books_id_on_page)
 
-        for book_id in books_id:
-            book = fetch_book(book_id)
-            if book:
-                book.download_link = '{}?id={}'.format(
-                    book.download_link,
-                    book.id
-                )
-                books_info.append(book.__dict__)
-
-    return books_info
+    return books_id
 
 
 def get_books_id_from_category_page(
@@ -213,8 +212,9 @@ def get_books_id_from_category_page(
     :param category_id: id книжной категории.
     :param category_page: страница категории.
 
-    :return: list - список найденных id книг.
+    :return: list - список найденных id книг на странице категории.
     """
+
     url = f'https://tululu.org/l{category_id}/{category_page}/'
     response = requests.get(url)
     response.raise_for_status()
