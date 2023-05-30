@@ -1,3 +1,5 @@
+import re
+
 from bs4 import BeautifulSoup
 
 
@@ -37,19 +39,22 @@ def parse_book_page(html_content: str) -> dict:
     return book
 
 
-def parse_category_page(html_content: str) -> list:
+def parse_category_page(html_content: str) -> list[int]:
     """Парсим страницу с книгами по категории сайта tululu.org.
 
     :param html_content: html страницы с категорией.
 
-    :return: list - список относительных ссылок на книги в категории.
+    :return: list - список id книг из категории.
     """
-    book_links = []
+    books_id = []
 
     soup = BeautifulSoup(html_content, 'lxml')
     tables_with_book_description = soup.find_all('table', class_='d_book')
     for table in tables_with_book_description:
         table_row_with_book_link = table.find('td').find('a')
-        book_links.append(table_row_with_book_link.get('href'))
+        book_link = table_row_with_book_link.get('href')
 
-    return book_links
+        book_id = re.sub(r'\D', '', book_link)
+        books_id.append(int(book_id))
+
+    return books_id

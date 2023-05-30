@@ -1,23 +1,23 @@
-import time
-from urllib.parse import urljoin
+import sys
 
-import requests
-
-from parser import parse_category_page
-from services import check_for_redirect
+from services import fetch_books_by_category
+from services import save_books_info_as_json_file
 
 
-def parse_category(category_id: int):
-    # скачиваем страницу https://tululu.org/l55/
-    for category_page in range(1, 11):
-        url = f'https://tululu.org/l55/{category_page}/'
-        response = requests.get(url)
-        response.raise_for_status()
-        check_for_redirect(response)
-        # находим все книги с научной фантастикой на странице
-        for book_link in parse_category_page(response.text):
-            book_link_abs = urljoin(response.url, book_link)
-            # выводим ссылку на книгу для последующего скачивания
-            print(book_link_abs)
+def main():
+    try:
+        downloaded_books_info = fetch_books_by_category(
+            category_id=55,
+            pages=2
+        )
+        save_books_info_as_json_file(
+            'downloaded_books_info.json',
+            downloaded_books_info
+        )
+    except KeyboardInterrupt:
+        print('Работа скрипта остановлена')
+        sys.exit()
 
-        time.sleep(1)
+
+if __name__ == '__main__':
+    main()

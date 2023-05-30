@@ -1,7 +1,6 @@
 import sys
 import argparse
 
-from parse_tululu_category import parse_category
 from services import fetch_book
 
 
@@ -35,8 +34,7 @@ def main():
         args = parser.parse_args()
         start_book_id = args.start_id
         end_book_id = args.end_id
-        parse_category(1)
-        sys.exit()
+
         if start_book_id > end_book_id:
             print('id стартовой книги не может быть больше id конечной книги')
             sys.exit()

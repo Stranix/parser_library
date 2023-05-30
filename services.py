@@ -1,4 +1,5 @@
 import os
+import json
 import time
 import urllib
 import requests
@@ -8,6 +9,7 @@ from dataclasses import dataclass
 from pathvalidate import sanitize_filename
 
 from parser import parse_book_page
+from parser import parse_category_page
 
 
 @dataclass
@@ -33,7 +35,7 @@ def check_for_redirect(response: requests.Response):
         raise requests.HTTPError
 
 
-def fetch_book(book_id: int):
+def fetch_book(book_id: int) -> Book:
     """Качает и сохраняет книгу и обложку с сайта tululu.org.
 
     :param book_id: ID книги для скачивания.
@@ -52,7 +54,7 @@ def fetch_book(book_id: int):
 
             download_txt(book.download_link, file_name, request_params)
             download_image(book.poster_link)
-            break
+            return book
 
         except requests.HTTPError:
             print('Не удалось скачать книгу или обложку. id -', book_id)
@@ -151,3 +153,58 @@ def save_file(folder: str, filename: str, content: bytes) -> str:
     with open(path_to_save, mode='wb') as file:
         file.write(content)
     return path_to_save
+
+
+def save_books_info_as_json_file(filename: str, books_info: list):
+    """Сохраняет информацию в json файл о скаченных книгах в категории.
+
+    :param filename: имя файла.
+    :param books_info: список словарей с информацией о скаченных книгах.
+    """
+    with open(filename, mode='w') as file:
+        json.dump(books_info, file, indent=4, ensure_ascii=False)
+
+
+def fetch_books_by_category(category_id: int, pages: int = 5) -> list:
+    """Качаем и сохраняем книги в выбранной категории с сайта tululu.org.
+
+    :param category_id: id книжной категории.
+    :param pages: сколько страниц обрабатываем для поиска книг.
+
+    :return: list - список словарей о скаченных книгах.
+    """
+
+    books_info = []
+    for category_page in range(1, pages + 1):
+        books_id = get_books_id_from_category_page(
+            category_id,
+            category_page
+        )
+        print(books_id)
+        for book_id in books_id:
+            book = fetch_book(book_id)
+            if book:
+                books_info.append(book.__dict__)
+
+    return books_info
+
+
+def get_books_id_from_category_page(
+        category_id: int,
+        category_page: int
+) -> list[int] | None:
+    """Получаем информацию о id книгах на конкретной страницы категории.
+
+    :param category_id: id книжной категории.
+    :param category_page: страница категории.
+
+    :return: list - список найденных id книг.
+    """
+    url = f'https://tululu.org/l{category_id}/{category_page}/'
+    response = requests.get(url)
+    response.raise_for_status()
+    check_for_redirect(response)
+    books_id = parse_category_page(response.text)
+
+    if books_id:
+        return books_id
