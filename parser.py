@@ -35,3 +35,19 @@ def parse_book_page(html_content: str) -> dict:
     }
 
     return book
+
+
+def parse_category_page(html_content: str) -> str:
+    """Парсим страницу с книгами по категории сайта tululu.org.
+
+    :param html_content: html страницы с категорией.
+
+    :return: dict - данные по книге.
+    """
+
+    soup = BeautifulSoup(html_content, 'lxml')
+    table_with_book_description = soup.find('table', class_='d_book')
+    table_row_with_book_link = table_with_book_description.find('td').find('a')
+    book_link = table_row_with_book_link.get('href')
+
+    return book_link
