@@ -21,6 +21,8 @@ class Book:
     genres: list
     download_link: str = ''
     poster_link: str = ''
+    book_saved_path: str = ''
+    poster_saved_path: str = ''
 
 
 def check_for_redirect(response: requests.Response):
@@ -52,8 +54,17 @@ def fetch_book(book_id: int) -> Book:
             }
             file_name = '{}_{}'.format(book_id, book.title)
 
-            download_txt(book.download_link, file_name, request_params)
-            download_image(book.poster_link)
+            book_saved_path = download_txt(
+                book.download_link,
+                file_name,
+                request_params
+            )
+
+            poster_saved_path = download_image(book.poster_link)
+
+            book.book_saved_path = book_saved_path
+            book.poster_saved_path = poster_saved_path
+
             return book
 
         except requests.HTTPError:
@@ -180,10 +191,14 @@ def fetch_books_by_category(category_id: int, pages: int = 5) -> list:
             category_id,
             category_page
         )
-        print(books_id)
+
         for book_id in books_id:
             book = fetch_book(book_id)
             if book:
+                book.download_link = '{}?id={}'.format(
+                    book.download_link,
+                    book.id
+                )
                 books_info.append(book.__dict__)
 
     return books_info
