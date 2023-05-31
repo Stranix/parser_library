@@ -10,6 +10,7 @@ from pathvalidate import sanitize_filename
 
 from parser import parse_book_page
 from parser import parse_category_page
+from parser import get_number_of_pages_in_category
 
 
 @dataclass
@@ -223,3 +224,11 @@ def get_books_id_from_category_page(
 
     if books_id:
         return books_id
+
+
+def get_category_end_page(category_id: int) -> int:
+    url = f'https://tululu.org/l{category_id}/'
+    response = requests.get(url)
+    response.raise_for_status()
+    check_for_redirect(response)
+    return get_number_of_pages_in_category(response.text)

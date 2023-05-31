@@ -57,3 +57,14 @@ def parse_category_page(html_content: str) -> list[int]:
         books_id.append(int(book_id))
 
     return books_id
+
+
+def get_number_of_pages_in_category(html_content: str) -> int:
+    count_pages = 1
+    try:
+        soup = BeautifulSoup(html_content, 'lxml')
+        count_pages = soup.select_one('.npage:last-of-type').text
+        return int(count_pages)
+    except AttributeError:
+        print('Внимание. У категории только 1 страница книг')
+        return count_pages
