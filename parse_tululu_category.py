@@ -19,7 +19,7 @@ def create_arg_parser():
     )
 
     arg_parser.add_argument('--category_id', default=55, metavar='', type=int,
-                            help='''id жанры откуда будем скачивать книги. 
+                            help='''id жанра(категории) откуда будем скачивать книги. 
                             Значение по умолчанию 55'''
                             )
 
