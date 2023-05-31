@@ -180,7 +180,7 @@ def save_books_info_as_json_file(filename: str, books_info: list):
 def get_books_id_in_range_pages_in_category(
         category_id: int,
         start_page: int = 1,
-        end_page: int = 1
+        end_page: int = 2
 ) -> list[int]:
     """Получаем id книг выбранной категории и страниц с сайта tululu.org.
 
@@ -193,7 +193,7 @@ def get_books_id_in_range_pages_in_category(
 
     books_id = []
 
-    for category_page in range(start_page, end_page + 1):
+    for category_page in range(start_page, end_page):
         books_id_on_page = get_books_id_from_category_page(
             category_id,
             category_page

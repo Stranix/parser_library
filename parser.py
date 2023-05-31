@@ -34,7 +34,7 @@ def parse_book_page(html_content: str) -> dict:
         'genres': genres,
         'poster_link': book_poster_link
     }
-    
+
     return book
 
 
