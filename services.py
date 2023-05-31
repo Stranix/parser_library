@@ -38,10 +38,18 @@ def check_for_redirect(response: requests.Response):
         raise requests.HTTPError
 
 
-def fetch_book(book_id: int) -> Book:
+def fetch_book(
+        book_id: int,
+        dest_folder: str = './',
+        skip_imgs: bool = False,
+        skip_txt: bool = False
+) -> Book:
     """Качает и сохраняет книгу и обложку с сайта tululu.org.
 
     :param book_id: ID книги для скачивания.
+    :param dest_folder: корневая папка для сохранения результата.
+    :param skip_imgs: скачивать или не скачивать постеры к книге.
+    :param skip_txt: скачивать или не скачивать книгу.
 
     :return: tuple(id стартовой книги, id конечной книги).
     """
@@ -55,16 +63,20 @@ def fetch_book(book_id: int) -> Book:
             }
             file_name = '{}_{}'.format(book_id, book.title)
 
-            book_saved_path = download_txt(
-                book.download_link,
-                file_name,
-                request_params
-            )
-
-            poster_saved_path = download_image(book.poster_link)
-
-            book.book_saved_path = book_saved_path
-            book.poster_saved_path = poster_saved_path
+            if not skip_txt:
+                book_saved_path = download_txt(
+                    book.download_link,
+                    file_name,
+                    request_params,
+                    dest_folder
+                )
+                book.book_saved_path = book_saved_path
+            if not skip_imgs:
+                poster_saved_path = download_image(
+                    book.poster_link,
+                    dest_folder
+                )
+                book.poster_saved_path = poster_saved_path
 
             return book
 
@@ -80,12 +92,19 @@ def fetch_book(book_id: int) -> Book:
             time.sleep(5)
 
 
-def download_txt(url, filename, params=None, folder='books/') -> str:
+def download_txt(
+        url,
+        filename,
+        params=None,
+        dest_folder='./',
+        subfolder='books/'
+) -> str:
     """Качает текстовый файл по-указанному url и сохраняет на диск.
 
     :param url: ссылка на скачивание.
     :param filename: имя для сохранения.
-    :param folder: папка для сохранения (будет создана если её нет)
+    :param dest_folder: основная папка для сохранения книги.
+    :param subfolder: подпапка для сохранения книги (будет создана если её нет)
     :param params: дополнительные параметры запроса
 
     :return: str - Строку с указанием куда сохранили файл.
@@ -95,15 +114,18 @@ def download_txt(url, filename, params=None, folder='books/') -> str:
     response.raise_for_status()
     check_for_redirect(response)
 
+    folder = os.path.join(dest_folder, subfolder)
+
     filename = sanitize_filename('{}.txt'.format(filename))
     return save_file(folder, filename, response.content)
 
 
-def download_image(url, folder='images/') -> str:
+def download_image(url, dest_folder='./', subfolder='images/') -> str:
     """Качает картинку по-указанному url и сохраняет на диск.
 
     :param url: ссылка на скачивание.
-    :param folder:папка для сохранения (будет создана если её нет)
+    :param dest_folder: основная папка для сохранения постера.
+    :param subfolder: подпапка для сохранения постеров (будет создана если её нет)
 
     :return: str - Строку с указанием куда сохранили файл.
     """
@@ -111,6 +133,8 @@ def download_image(url, folder='images/') -> str:
     response = requests.get(url)
     response.raise_for_status()
     check_for_redirect(response)
+
+    folder = os.path.join(dest_folder, subfolder)
 
     filename = get_image_name_from_url(url)
     return save_file(folder, filename, response.content)
@@ -167,15 +191,26 @@ def save_file(folder: str, filename: str, content: bytes) -> str:
     return path_to_save
 
 
-def save_books_info_as_json_file(filename: str, books_info: list):
+def save_books_info_as_json_file(
+        filename: str,
+        books_info: list,
+        json_path: str = './'
+) -> str:
     """Сохраняет информацию в json файл о скаченных книгах в категории.
 
     :param filename: имя файла.
     :param books_info: список словарей с информацией о скаченных книгах.
+    :param json_path: путь до каталога куда сохраняем файл с результатом.
+
+    :return: str - путь куда сохранил
     """
 
-    with open(filename, mode='w') as file:
+    path_to_save = os.path.join(json_path, filename)
+    os.makedirs(json_path, exist_ok=True)
+    with open(path_to_save, mode='w') as file:
         json.dump(books_info, file, indent=4, ensure_ascii=False)
+
+    return path_to_save
 
 
 def get_books_id_in_range_pages_in_category(
@@ -227,6 +262,12 @@ def get_books_id_from_category_page(
 
 
 def get_category_end_page(category_id: int) -> int:
+    """Получаем информацию о количестве страниц в выбранной категории.
+
+    :param category_id: id книжной категории.
+
+    :return: int - сколько всего страниц в выбранной категории.
+    """
     url = f'https://tululu.org/l{category_id}/'
     response = requests.get(url)
     response.raise_for_status()
