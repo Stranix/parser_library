@@ -233,6 +233,7 @@ def get_book_ids_in_range_pages_in_category(
                     category_page
                 )
                 book_ids.extend(book_ids_on_page)
+                break
             except requests.HTTPError:
                 error_msg = 'Ошибка при парсинге страницы {} категории {}'.format(
                     category_page,
