@@ -191,15 +191,15 @@ def save_file(folder: str, filename: str, content: bytes) -> str:
     return path_to_save
 
 
-def save_books_info_as_json_file(
+def save_books_as_json_file(
         filename: str,
-        books_info: list,
+        books: list,
         json_path: str = './'
 ) -> str:
     """Сохраняет информацию в json файл о скаченных книгах в категории.
 
     :param filename: имя файла.
-    :param books_info: список словарей с информацией о скаченных книгах.
+    :param books: список словарей с информацией о скаченных книгах.
     :param json_path: путь до каталога куда сохраняем файл с результатом.
 
     :return: str - путь куда сохранил
@@ -208,7 +208,7 @@ def save_books_info_as_json_file(
     path_to_save = os.path.join(json_path, filename)
     os.makedirs(json_path, exist_ok=True)
     with open(path_to_save, mode='w') as file:
-        json.dump(books_info, file, indent=4, ensure_ascii=False)
+        json.dump(books, file, indent=4, ensure_ascii=False)
 
     return path_to_save
 
@@ -257,7 +257,7 @@ def get_book_ids_in_range_pages_in_category(
 def get_book_ids_from_category_page(
         category_id: int,
         category_page: int
-) -> list[int] | None:
+) -> list:
     """Получаем информацию о id книгах на конкретной страницы категории.
 
     :param category_id: id книжной категории.
@@ -272,8 +272,7 @@ def get_book_ids_from_category_page(
     check_for_redirect(response)
     book_ids = parse_category_page(response.text)
 
-    if book_ids:
-        return book_ids
+    return book_ids
 
 
 def get_category_end_page(category_id: int) -> int | None:
@@ -291,4 +290,3 @@ def get_category_end_page(category_id: int) -> int | None:
         return get_number_of_pages_in_category(response.text)
     except requests.HTTPError:
         print('Не смог определить количество доступных страниц категории')
-        return

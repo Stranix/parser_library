@@ -1,11 +1,11 @@
 import sys
 import argparse
 
-import requests
+from dataclasses import asdict
 
 from services import fetch_book
 from services import get_category_end_page
-from services import save_books_info_as_json_file
+from services import save_books_as_json_file
 from services import get_book_ids_in_range_pages_in_category
 
 
@@ -93,7 +93,7 @@ def main():
         print('Не нашел книг для скачивания. Проверьте диапазон страниц')
         raise KeyboardInterrupt
 
-    downloaded_books_info = []
+    books = []
     for book_id in book_ids:
         book = fetch_book(book_id, dest_folder, skip_imgs, skip_txt)
 
@@ -101,12 +101,12 @@ def main():
             continue
 
         book.download_link = f'{book.download_link}?id={book.id}'
-        downloaded_books_info.append(book.__dict__)
+        books.append(asdict(book))
 
-    if downloaded_books_info:
-        save_books_info_as_json_file(
+    if books:
+        save_books_as_json_file(
             'downloaded_books_info.json',
-            downloaded_books_info,
+            books,
             json_path,
         )
 
