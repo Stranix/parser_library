@@ -38,14 +38,12 @@ def create_arg_parser():
                                 Значение по умолчанию текущая папка скрипта '''
                             )
 
-    arg_parser.add_argument('--skip_imgs', default=False, metavar='',
-                            type=bool,
+    arg_parser.add_argument('--skip_imgs', action='store_true',
                             help='''Пропустить скачивание постеров. 
                                     Значение по умолчанию False '''
                             )
 
-    arg_parser.add_argument('--skip_txt', default=False, metavar='',
-                            type=bool,
+    arg_parser.add_argument('--skip_txt', action='store_true',
                             help='''Пропустить скачивание книги. 
                                     Значение по умолчанию False '''
                             )
@@ -62,6 +60,7 @@ def main():
     try:
         parser = create_arg_parser()
         args = parser.parse_args()
+        print(args)
         category_id = args.category_id
         category_start_page = args.start_page
         category_end_page = args.end_page
