@@ -3,6 +3,8 @@ import argparse
 
 from dataclasses import asdict
 
+import requests
+
 from services import fetch_book
 from services import get_category_end_page
 from services import save_books_as_json_file
@@ -72,8 +74,6 @@ def main():
     json_path = args.json_path
 
     category_end_page_on_site = get_category_end_page(category_id)
-    if not category_end_page_on_site:
-        raise KeyboardInterrupt
 
     if category_end_page > category_end_page_on_site:
         print('Страниц у выбранной категории:', category_end_page_on_site)
@@ -95,13 +95,12 @@ def main():
 
     books = []
     for book_id in book_ids:
-        book = fetch_book(book_id, dest_folder, skip_imgs, skip_txt)
-
-        if not book:
-            continue
-
-        book.download_link = f'{book.download_link}?id={book.id}'
-        books.append(asdict(book))
+        try:
+            book = fetch_book(book_id, dest_folder, skip_imgs, skip_txt)
+            book.download_link = f'{book.download_link}?id={book.id}'
+            books.append(asdict(book))
+        except requests.HTTPError:
+            print('Не удалось скачать книгу или обложку. id -', book_id)
 
     if books:
         save_books_as_json_file(
@@ -114,6 +113,12 @@ def main():
 if __name__ == '__main__':
     try:
         main()
+
+    except requests.HTTPError:
+        print('Не смог определить количество доступных страниц категории')
+
     except KeyboardInterrupt:
         print('Работа скрипта остановлена')
+
+    finally:
         sys.exit()

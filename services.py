@@ -80,10 +80,6 @@ def fetch_book(
 
             return book
 
-        except requests.HTTPError:
-            print('Не удалось скачать книгу или обложку. id -', book_id)
-            break
-
         except (requests.ConnectionError, requests.ConnectTimeout):
             print(
                 'Ошибка соединения, попытаюсь через 5 секунд повторно '
@@ -275,18 +271,16 @@ def get_book_ids_from_category_page(
     return book_ids
 
 
-def get_category_end_page(category_id: int) -> int | None:
+def get_category_end_page(category_id: int) -> int:
     """Получаем информацию о количестве страниц в выбранной категории.
 
     :param category_id: id книжной категории.
 
     :return: int - сколько всего страниц в выбранной категории.
     """
-    try:
-        url = f'https://tululu.org/l{category_id}/'
-        response = requests.get(url)
-        response.raise_for_status()
-        check_for_redirect(response)
-        return get_number_of_pages_in_category(response.text)
-    except requests.HTTPError:
-        print('Не смог определить количество доступных страниц категории')
+
+    url = f'https://tululu.org/l{category_id}/'
+    response = requests.get(url)
+    response.raise_for_status()
+    check_for_redirect(response)
+    return get_number_of_pages_in_category(response.text)

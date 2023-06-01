@@ -1,4 +1,5 @@
 import sys
+import requests
 import argparse
 
 from services import fetch_book
@@ -29,23 +30,29 @@ def create_arg_parser():
 
 
 def main():
-    try:
-        parser = create_arg_parser()
-        args = parser.parse_args()
-        start_book_id = args.start_id
-        end_book_id = args.end_id
+    parser = create_arg_parser()
+    args = parser.parse_args()
+    start_book_id = args.start_id
+    end_book_id = args.end_id
 
-        if start_book_id > end_book_id:
-            print('id стартовой книги не может быть больше id конечной книги')
-            sys.exit()
+    if start_book_id > end_book_id:
+        print('id стартовой книги не может быть больше id конечной книги')
+        sys.exit()
 
-        for book_id in range(start_book_id, end_book_id):
+    for book_id in range(start_book_id, end_book_id):
+        try:
             fetch_book(book_id)
 
-    except KeyboardInterrupt:
-        print('Работа скрипта остановлена')
-        sys.exit()
+        except requests.HTTPError:
+            print('Не удалось скачать книгу или обложку. id -', book_id)
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+
+    except KeyboardInterrupt:
+        print('Работа скрипта остановлена')
+
+    finally:
+        sys.exit()
