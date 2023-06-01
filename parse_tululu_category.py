@@ -1,9 +1,8 @@
 import sys
+import requests
 import argparse
 
 from dataclasses import asdict
-
-import requests
 
 from services import fetch_book
 from services import get_category_end_page
