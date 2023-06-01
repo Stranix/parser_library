@@ -213,7 +213,7 @@ def save_books_info_as_json_file(
     return path_to_save
 
 
-def get_books_id_in_range_pages_in_category(
+def get_book_ids_in_range_pages_in_category(
         category_id: int,
         start_page: int = 1,
         end_page: int = 2
@@ -227,19 +227,19 @@ def get_books_id_in_range_pages_in_category(
     :return: list - список id найденных книг в выбранном диапазоне
     """
 
-    books_id = []
+    book_ids = []
 
     for category_page in range(start_page, end_page):
-        books_id_on_page = get_books_id_from_category_page(
+        book_ids_on_page = get_book_ids_from_category_page(
             category_id,
             category_page
         )
-        books_id.extend(books_id_on_page)
+        book_ids.extend(book_ids_on_page)
 
-    return books_id
+    return book_ids
 
 
-def get_books_id_from_category_page(
+def get_book_ids_from_category_page(
         category_id: int,
         category_page: int
 ) -> list[int] | None:
@@ -255,10 +255,10 @@ def get_books_id_from_category_page(
     response = requests.get(url)
     response.raise_for_status()
     check_for_redirect(response)
-    books_id = parse_category_page(response.text)
+    book_ids = parse_category_page(response.text)
 
-    if books_id:
-        return books_id
+    if book_ids:
+        return book_ids
 
 
 def get_category_end_page(category_id: int) -> int:

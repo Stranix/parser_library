@@ -4,7 +4,7 @@ import argparse
 from services import fetch_book
 from services import get_category_end_page
 from services import save_books_info_as_json_file
-from services import get_books_id_in_range_pages_in_category
+from services import get_book_ids_in_range_pages_in_category
 
 
 def create_arg_parser():
@@ -33,7 +33,8 @@ def create_arg_parser():
                             Значение по умолчанию 1 '''
                             )
 
-    arg_parser.add_argument('--dest_folder', default='./', metavar='', type=str,
+    arg_parser.add_argument('--dest_folder', default='./', metavar='',
+                            type=str,
                             help='''путь в какую папку будем сохранять результат. 
                                 Значение по умолчанию текущая папка скрипта '''
                             )
@@ -77,18 +78,18 @@ def main():
     if category_start_page > category_end_page:
         category_end_page = category_end_page_on_site
 
-    books_id = get_books_id_in_range_pages_in_category(
+    book_ids = get_book_ids_in_range_pages_in_category(
         category_id,
         category_start_page,
         category_end_page + 1
     )
 
-    if not books_id:
+    if not book_ids:
         print('Не нашел книг для скачивания. Проверьте диапазон страниц')
         raise KeyboardInterrupt
 
     downloaded_books_info = []
-    for book_id in books_id:
+    for book_id in book_ids:
         book = fetch_book(book_id, dest_folder, skip_imgs, skip_txt)
 
         if not book:
@@ -103,8 +104,6 @@ def main():
             downloaded_books_info,
             json_path,
         )
-
-
 
 
 if __name__ == '__main__':

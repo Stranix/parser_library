@@ -45,7 +45,7 @@ def parse_category_page(html_content: str) -> list[int]:
 
     :return: list - список id книг из категории.
     """
-    books_id = []
+    book_ids = []
 
     soup = BeautifulSoup(html_content, 'lxml')
     tables_with_book_description = soup.select('table.d_book')
@@ -54,9 +54,9 @@ def parse_category_page(html_content: str) -> list[int]:
         book_link = table_row_with_book_link.get('href')
 
         book_id = re.sub(r'\D', '', book_link)
-        books_id.append(int(book_id))
+        book_ids.append(int(book_id))
 
-    return books_id
+    return book_ids
 
 
 def get_number_of_pages_in_category(html_content: str) -> int:
