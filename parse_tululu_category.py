@@ -1,6 +1,8 @@
 import sys
 import argparse
 
+import requests
+
 from services import fetch_book
 from services import get_category_end_page
 from services import save_books_info_as_json_file
@@ -70,6 +72,9 @@ def main():
     json_path = args.json_path
 
     category_end_page_on_site = get_category_end_page(category_id)
+    if not category_end_page_on_site:
+        raise KeyboardInterrupt
+
     if category_end_page > category_end_page_on_site:
         print('Страниц у выбранной категории:', category_end_page_on_site)
         print('Поменяйте диапазон для скачивания')

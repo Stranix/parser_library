@@ -230,11 +230,26 @@ def get_book_ids_in_range_pages_in_category(
     book_ids = []
 
     for category_page in range(start_page, end_page):
-        book_ids_on_page = get_book_ids_from_category_page(
-            category_id,
-            category_page
-        )
-        book_ids.extend(book_ids_on_page)
+        while True:
+            try:
+                book_ids_on_page = get_book_ids_from_category_page(
+                    category_id,
+                    category_page
+                )
+                book_ids.extend(book_ids_on_page)
+            except requests.HTTPError:
+                error_msg = 'Ошибка при парсинге страницы {} категории {}'.format(
+                    category_page,
+                    category_id
+                )
+                print(error_msg)
+                break
+            except (requests.ConnectionError, requests.ConnectTimeout):
+                print(
+                    'Ошибка соединения, попытаюсь через 5 секунд повторно '
+                    'получить данные со страницы '
+                )
+                time.sleep(5)
 
     return book_ids
 
@@ -261,15 +276,19 @@ def get_book_ids_from_category_page(
         return book_ids
 
 
-def get_category_end_page(category_id: int) -> int:
+def get_category_end_page(category_id: int) -> int | None:
     """Получаем информацию о количестве страниц в выбранной категории.
 
     :param category_id: id книжной категории.
 
     :return: int - сколько всего страниц в выбранной категории.
     """
-    url = f'https://tululu.org/l{category_id}/'
-    response = requests.get(url)
-    response.raise_for_status()
-    check_for_redirect(response)
-    return get_number_of_pages_in_category(response.text)
+    try:
+        url = f'https://tululu.org/l{category_id}/'
+        response = requests.get(url)
+        response.raise_for_status()
+        check_for_redirect(response)
+        return get_number_of_pages_in_category(response.text)
+    except requests.HTTPError:
+        print('Не смог определить количество доступных страниц категории')
+        return
