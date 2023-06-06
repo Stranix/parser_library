@@ -112,8 +112,9 @@ def main():
     )
 
     if not book_ids:
-        logger.critical('Не нашел книг для скачивания. Проверьте диапазон '
-                        'страниц')
+        logger.critical(
+            'Не нашел книг для скачивания. Проверьте диапазон страниц'
+        )
         raise KeyboardInterrupt
 
     books = []
