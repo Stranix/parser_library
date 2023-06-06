@@ -1,4 +1,7 @@
+import json
 import sys
+import logging
+import logging.config
 import requests
 import argparse
 
@@ -8,6 +11,9 @@ from services import fetch_book
 from services import get_category_end_page
 from services import save_books_as_json_file
 from services import get_book_ids_in_range_pages_in_category
+
+
+logger = logging.getLogger(__name__)
 
 
 def create_arg_parser():
@@ -61,8 +67,16 @@ def create_arg_parser():
 
 
 def main():
+    try:
+        with open('logging_config.json', 'r', encoding='utf-8') as file:
+            logging.config.dictConfig(json.load(file))
+    except FileNotFoundError:
+        logger.warning('Для настройки логирования нужен logging_config.json')
+
+    logger.info('Старт парсера')
     parser = create_arg_parser()
     args = parser.parse_args()
+    logger.debug('argparse %s', args)
 
     category_id = args.category_id
     category_start_page = args.start_page
@@ -73,10 +87,19 @@ def main():
     json_path = args.json_path
 
     category_end_page_on_site = get_category_end_page(category_id)
+    logger.debug(
+        'Страниц %s у выбранной категории %s',
+        category_end_page_on_site,
+        category_id
+    )
 
     if category_end_page > category_end_page_on_site:
-        print('Страниц у выбранной категории:', category_end_page_on_site)
-        print('Поменяйте диапазон для скачивания')
+        logger.critical(
+            'Страниц у выбранной категории %s \n'
+            'Поменяйте диапазон для скачивания',
+            category_end_page_on_site,
+
+        )
         raise KeyboardInterrupt
 
     if category_start_page > category_end_page:
@@ -89,7 +112,8 @@ def main():
     )
 
     if not book_ids:
-        print('Не нашел книг для скачивания. Проверьте диапазон страниц')
+        logger.critical('Не нашел книг для скачивания. Проверьте диапазон '
+                        'страниц')
         raise KeyboardInterrupt
 
     books = []
@@ -99,7 +123,10 @@ def main():
             book.download_link = f'{book.download_link}?id={book.id}'
             books.append(asdict(book))
         except requests.HTTPError:
-            print('Не удалось скачать книгу или обложку. id -', book_id)
+            logger.error(
+                'Не удалось скачать книгу или обложку. id - %s',
+                book_id
+            )
 
     if books:
         save_books_as_json_file(
@@ -114,10 +141,12 @@ if __name__ == '__main__':
         main()
 
     except requests.HTTPError:
-        print('Не смог определить количество доступных страниц категории')
+        logger.critical(
+            'Не смог определить количество доступных страниц категории'
+        )
 
     except KeyboardInterrupt:
-        print('Работа скрипта остановлена')
+        logger.info('Работа скрипта остановлена')
 
     finally:
         sys.exit()
