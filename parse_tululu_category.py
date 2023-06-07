@@ -74,6 +74,7 @@ def main():
         logger.warning('Для настройки логирования нужен logging_config.json')
 
     logger.info('Старт парсера')
+
     parser = create_arg_parser()
     args = parser.parse_args()
     logger.debug('argparse %s', args)

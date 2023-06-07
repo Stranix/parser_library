@@ -2,6 +2,7 @@ import os
 import json
 import time
 import urllib
+import logging
 import requests
 
 from urllib.parse import urljoin
@@ -11,6 +12,9 @@ from pathvalidate import sanitize_filename
 from parser import parse_book_page
 from parser import parse_category_page
 from parser import get_number_of_pages_in_category
+
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -33,7 +37,7 @@ def check_for_redirect(response: requests.Response):
 
     :param response: Ответ сайта tululu.org.
     """
-
+    logger.info('Проверка редиректа на главную страницу')
     if response.url == 'https://tululu.org/':
         raise requests.HTTPError
 
@@ -53,7 +57,7 @@ def fetch_book(
 
     :return: tuple(id стартовой книги, id конечной книги).
     """
-
+    logger.info('фетчим книгу с id - %s', book_id)
     while True:
         try:
             book = get_book(book_id)
@@ -63,6 +67,9 @@ def fetch_book(
             }
             file_name = '{}_{}'.format(book_id, book.title)
 
+            logger.debug('file_name: %s', file_name)
+
+            logger.debug('skip_txt: %s', skip_txt)
             if not skip_txt:
                 book_saved_path = download_txt(
                     book.download_link,
@@ -71,6 +78,8 @@ def fetch_book(
                     dest_folder
                 )
                 book.book_saved_path = book_saved_path
+
+            logger.debug('skip_imgs: %s', skip_imgs)
             if not skip_imgs:
                 poster_saved_path = download_image(
                     book.poster_link,
@@ -78,10 +87,12 @@ def fetch_book(
                 )
                 book.poster_saved_path = poster_saved_path
 
+            logger.debug('book: %s', book)
+            logger.info('Завершено')
             return book
 
         except (requests.ConnectionError, requests.ConnectTimeout):
-            print(
+            logger.error(
                 'Ошибка соединения, попытаюсь через 5 секунд повторно '
                 'скачать книгу'
             )
@@ -105,14 +116,20 @@ def download_txt(
 
     :return: str - Строку с указанием куда сохранили файл.
     """
+    logger.info('Скачиваем текстовую версию книги')
+    logger.debug('url: %s', url)
 
     response = requests.get(url, params)
+    logger.debug('response status code: %s', response.status_code)
     response.raise_for_status()
     check_for_redirect(response)
 
     folder = os.path.join(dest_folder, subfolder)
+    logger.debug('Папка для сохранения: %s', folder)
 
     filename = sanitize_filename('{}.txt'.format(filename))
+    logger.debug('Имя файла: %s', filename)
+    logger.info('информация получена. Попытка сохранить файл')
     return save_file(folder, filename, response.content)
 
 
@@ -125,14 +142,21 @@ def download_image(url, dest_folder='./', subfolder='images/') -> str:
 
     :return: str - Строку с указанием куда сохранили файл.
     """
+    logger.info('Скачиваем обложку книги')
+    logger.debug('url: %s', url)
 
     response = requests.get(url)
+    logger.debug('response status code: %s', response.status_code)
     response.raise_for_status()
     check_for_redirect(response)
 
     folder = os.path.join(dest_folder, subfolder)
+    logger.debug('Папка для сохранения: %s', folder)
 
     filename = get_image_name_from_url(url)
+    logger.debug('Имя файла: %s', filename)
+    logger.info('информация получена. Попытка сохранить файл')
+
     return save_file(folder, filename, response.content)
 
 
@@ -143,9 +167,13 @@ def get_book(book_id: int) -> Book:
 
     :return: Book - информация по книге
     """
+    logger.info('Загружаем информацию с сайта о книге')
 
     url = '{}b{}/'.format('https://tululu.org/', book_id)
+    logger.debug('url: %s', url)
+
     response = requests.get(url)
+    logger.debug('response status code: %s', response.status_code)
     response.raise_for_status()
     check_for_redirect(response)
 
@@ -154,6 +182,8 @@ def get_book(book_id: int) -> Book:
     book['id'] = book_id
     book['poster_link'] = urljoin(response.url, book['poster_link'])
     book['download_link'] = urljoin(response.url, '/txt.php')
+
+    logger.info('Завершено')
     return Book(**book)
 
 
@@ -164,7 +194,7 @@ def get_image_name_from_url(url: str) -> str:
 
     :return: str - имя картинки
     """
-
+    logger.info('Получаем имя изображения из url: %s', url)
     split_result = urllib.parse.urlsplit(url)
     url_path = split_result.path
     return url_path.split('/')[-1]
@@ -179,11 +209,16 @@ def save_file(folder: str, filename: str, content: bytes) -> str:
 
     :return: str - путь куда сохранил
     """
-
+    logger.info(
+        'Сохраняем файл на диск в паку %s с именем %s',
+        folder,
+        filename
+    )
     path_to_save = os.path.join(folder, filename)
     os.makedirs(folder, exist_ok=True)
     with open(path_to_save, mode='wb') as file:
         file.write(content)
+    logger.info('Сохранено')
     return path_to_save
 
 
@@ -200,12 +235,13 @@ def save_books_as_json_file(
 
     :return: str - путь куда сохранил
     """
-
+    logger.info('Сохраняем информацию о книге в файл %s', filename)
     path_to_save = os.path.join(json_path, filename)
     os.makedirs(json_path, exist_ok=True)
     with open(path_to_save, mode='w') as file:
         json.dump(books, file, indent=4, ensure_ascii=False)
 
+    logger.info('Сохранено')
     return path_to_save
 
 
@@ -223,6 +259,8 @@ def get_book_ids_in_range_pages_in_category(
     :return: list - список id найденных книг в выбранном диапазоне
     """
 
+    logger.info('Получаем айденты книг в категории %s', category_id)
+
     book_ids = []
 
     for category_page in range(start_page, end_page):
@@ -239,14 +277,16 @@ def get_book_ids_in_range_pages_in_category(
                     category_page,
                     category_id
                 )
-                print(error_msg)
+                logger.error(error_msg)
                 break
             except (requests.ConnectionError, requests.ConnectTimeout):
-                print(
+                logger.error(
                     'Ошибка соединения, попытаюсь через 5 секунд повторно '
                     'получить данные со страницы '
                 )
                 time.sleep(5)
+    logger.debug('book_ids: %s', book_ids)
+    logger.info('Айденты книг получены')
 
     return book_ids
 
@@ -262,12 +302,19 @@ def get_book_ids_from_category_page(
 
     :return: list - список найденных id книг на странице категории.
     """
+    logger.info(
+        'Получаем информацию о id книгах на конкретной страницы категории.'
+    )
 
     url = f'https://tululu.org/l{category_id}/{category_page}/'
+    logger.debug('url: %s', url)
     response = requests.get(url)
     response.raise_for_status()
     check_for_redirect(response)
     book_ids = parse_category_page(response.text)
+
+    logger.debug('book_ids: %s', book_ids)
+    logger.info('Получил айденты книг с конкретной страницы категории')
 
     return book_ids
 
@@ -279,9 +326,16 @@ def get_category_end_page(category_id: int) -> int:
 
     :return: int - сколько всего страниц в выбранной категории.
     """
+    logger.info(
+        'Получаем информацию о количестве страниц в выбранной категории %s',
+        category_id
+    )
 
     url = f'https://tululu.org/l{category_id}/'
+    logger.debug('url: %s', url)
+
     response = requests.get(url)
     response.raise_for_status()
     check_for_redirect(response)
+
     return get_number_of_pages_in_category(response.text)

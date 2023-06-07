@@ -1,8 +1,13 @@
 import sys
+import json
 import requests
 import argparse
+import logging
+import logging.config
 
 from services import fetch_book
+
+logger = logging.getLogger(__name__)
 
 
 def create_arg_parser():
@@ -30,21 +35,36 @@ def create_arg_parser():
 
 
 def main():
+    try:
+        with open('logging_config.json', 'r', encoding='utf-8') as file:
+            logging.config.dictConfig(json.load(file))
+    except FileNotFoundError:
+        logger.warning('Для настройки логирования нужен logging_config.json')
+
+    logger.info('Старт парсера')
+
     parser = create_arg_parser()
     args = parser.parse_args()
+    logger.debug('argparse %s', args)
+
     start_book_id = args.start_id
     end_book_id = args.end_id
 
     if start_book_id > end_book_id:
-        print('id стартовой книги не может быть больше id конечной книги')
-        sys.exit()
+        logger.critical(
+            'id стартовой книги не может быть больше id конечной книги'
+        )
+        raise KeyboardInterrupt
 
     for book_id in range(start_book_id, end_book_id):
         try:
             fetch_book(book_id)
 
         except requests.HTTPError:
-            print('Не удалось скачать книгу или обложку. id -', book_id)
+            logger.error(
+                'Не удалось скачать книгу или обложку. id - %s',
+                book_id
+            )
 
 
 if __name__ == '__main__':
@@ -52,7 +72,7 @@ if __name__ == '__main__':
         main()
 
     except KeyboardInterrupt:
-        print('Работа скрипта остановлена')
+        logger.info('Работа скрипта остановлена')
 
     finally:
         sys.exit()
