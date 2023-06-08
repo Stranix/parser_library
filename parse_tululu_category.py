@@ -42,7 +42,7 @@ def create_arg_parser():
                             Значение по умолчанию 1 '''
                             )
 
-    arg_parser.add_argument('--dest_folder', default='./', metavar='',
+    arg_parser.add_argument('--dest_folder', default='', metavar='',
                             type=str,
                             help='''путь в какую папку будем сохранять результат. 
                                 Значение по умолчанию текущая папка скрипта '''
