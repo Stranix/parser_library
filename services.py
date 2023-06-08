@@ -133,7 +133,7 @@ def download_txt(
     return save_file(folder, filename, response.content)
 
 
-def download_image(url, dest_folder='./', subfolder='images/') -> str:
+def download_image(url, dest_folder='', subfolder='images/') -> str:
     """Качает картинку по-указанному url и сохраняет на диск.
 
     :param url: ссылка на скачивание.
