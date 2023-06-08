@@ -1,7 +1,7 @@
 import os
 import json
+import more_itertools
 
-from more_itertools import chunked
 from livereload import Server
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
@@ -26,11 +26,21 @@ def on_reload():
 
     template = env.get_template('template.html')
     os.makedirs('pages', exist_ok=True)
-    books = get_books_from_json_file('downloaded_books_info.json')
-    pages = chunked(books, 10)
-    for page, books in enumerate(pages, start=1):
+
+    books_chunked = list(
+        more_itertools.chunked(
+            get_books_from_json_file('downloaded_books_info.json'),
+            20
+        )
+    )
+
+    books_count = len(books_chunked)
+
+    for page, books in enumerate(books_chunked, start=1):
         rendered_page = template.render(
             books=books,
+            books_count=books_count,
+            current_page=page
         )
         path_to_save = os.path.join('pages/', f'index{page}.html')
         save_rendered_page(path_to_save, rendered_page)

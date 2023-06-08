@@ -10,6 +10,25 @@
 </head>
 <body>
 <div class="container">
+    <div class="row mt-5 ">
+        <div class="col-3 ">
+            <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                    <li class="page-item {{ 'disabled' if current_page <= 1 }}">
+                        <a class="page-link" href="/pages/index{{current_page - 1}}.html">Назад</a>
+                    </li>
+                    {% for page in range(1, books_count + 1) %}
+                    <li class="page-item {{ 'active' if current_page == page }}">
+                        <a class="page-link" href="/pages/index{{page}}.html">{{page}}</a>
+                    </li>
+                    {% endfor %}
+                    <li class="page-item {{ 'disabled' if current_page >= books_count }}">
+                        <a class="page-link" href="/pages/index{{current_page + 1}}.html">Вперед</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
     <div class="row">
         {% for book in books %}
         <div class="col-6">
