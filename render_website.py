@@ -25,7 +25,7 @@ def on_reload():
     )
 
     template = env.get_template('templates/template.html')
-    os.makedirs('pages', exist_ok=True)
+    os.makedirs('docs/pages', exist_ok=True)
 
     books_chunked = list(
         more_itertools.chunked(
@@ -42,7 +42,7 @@ def on_reload():
             books_count=books_count,
             current_page=page
         )
-        path_to_save = os.path.join('pages/', f'index{page}.html')
+        path_to_save = os.path.join('docs/pages/', f'index{page}.html')
         save_rendered_page(path_to_save, rendered_page)
 
 
@@ -51,4 +51,4 @@ if __name__ == '__main__':
 
     server = Server()
     server.watch('templates/template.html', on_reload)
-    server.serve(root='.')
+    server.serve(root='docs/')

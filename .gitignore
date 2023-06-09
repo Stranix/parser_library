@@ -2,8 +2,10 @@
 env/
 books/
 images/
+pages/
 __pycache__/
 *.json
 *.log
 index.html
-pages/
+!/docs/static/*
+!/docs/pages/
