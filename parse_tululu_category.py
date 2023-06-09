@@ -1,13 +1,12 @@
-import json
 import sys
 import logging
-import logging.config
 import requests
 import argparse
 
 from dataclasses import asdict
 
 from services import fetch_book
+from services import configure_logging
 from services import get_category_end_page
 from services import save_books_as_json_file
 from services import get_book_ids_in_range_pages_in_category
@@ -67,11 +66,7 @@ def create_arg_parser():
 
 
 def main():
-    try:
-        with open('logging_config.json', 'r', encoding='utf-8') as file:
-            logging.config.dictConfig(json.load(file))
-    except FileNotFoundError:
-        logger.warning('Для настройки логирования нужен logging_config.json')
+    configure_logging()
 
     logger.info('Старт парсера')
 
