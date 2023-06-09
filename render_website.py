@@ -24,7 +24,7 @@ def on_reload():
         autoescape=select_autoescape(['html', 'xml'])
     )
 
-    template = env.get_template('template.html')
+    template = env.get_template('templates/template.html')
     os.makedirs('pages', exist_ok=True)
 
     books_chunked = list(
@@ -50,5 +50,5 @@ if __name__ == '__main__':
     on_reload()
 
     server = Server()
-    server.watch('template.html', on_reload)
+    server.watch('templates/template.html', on_reload)
     server.serve(root='.')
