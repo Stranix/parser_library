@@ -361,7 +361,7 @@ def save_rendered_page(
     :param folder: папка для сохранения.
 
     """
-    logger.info('Сохраняет сгенерированную страницу на диск')
+    logger.info('Сохраняю сгенерированную страницу на диск')
     os.makedirs(folder, exist_ok=True)
     path_to_save = os.path.join(folder, filename)
 
