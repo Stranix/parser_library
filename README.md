@@ -88,7 +88,7 @@ python3 render_website.py --with_local_server
 Данные для сайта лежат в папке `./docs`
 
 ### Про логирование
-Для настройки логирования используется файл logging_config.json  
+Для настройки логирования используется файл `logging_config.json`  
 Если файла с настройки нет, будет писаться стандартный ввывод библиотеки logging.  
 Как заполнять logging_config.json можно прочитать [тут](https://docs-python.ru/standart-library/paket-logging-python/funktsija-dictconfig-modulja-logging-config/)
 
