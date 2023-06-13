@@ -80,7 +80,7 @@ if __name__ == '__main__':
 
         server = Server()
         server.watch('templates/template.html', on_reload)
-        server.serve(root='docs/pages/', default_filename='index1.html')
+        server.serve(root='docs/', default_filename='pages/index1.html')
 
     except FileNotFoundError:
         logger.critical(
