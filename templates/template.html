@@ -15,7 +15,7 @@
             <nav aria-label="Page navigation example">
                 <ul class="pagination">
                     <li class="page-item {{ 'disabled' if current_page <= 1 }}">
-                        <a class="page-link" href=./index{{current_page - 1}}.html">Назад</a>
+                        <a class="page-link" href="./index{{current_page - 1}}.html">Назад</a>
                     </li>
                     {% for page in range(1, books_count + 1) %}
                     <li class="page-item {{ 'active' if current_page == page }}">
