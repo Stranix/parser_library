@@ -379,7 +379,7 @@ def get_books_from_json_file(filename: str) -> dict:
     """
 
     logger.info('Получаем информацию о книгах из json файла')
-    with open(filename, 'r') as json_file:
+    with open(filename, 'r', encoding='cp1251') as json_file:
         books = json.load(json_file)
 
     logger.info('Выполнено')
