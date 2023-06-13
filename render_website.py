@@ -1,5 +1,7 @@
 import logging
 import argparse
+import sys
+
 import more_itertools
 
 from livereload import Server
@@ -25,7 +27,7 @@ def create_arg_parser():
         epilog=epilog
     )
 
-    arg_parser.add_argument('--with_local_server', '-wls', action='store_true',
+    arg_parser.add_argument('--only_render', '-r', action='store_true',
                             help='''Пропустить скачивание книги. 
                                     Значение по умолчанию False '''
                             )
@@ -59,19 +61,34 @@ def on_reload():
 
 
 if __name__ == '__main__':
-    configure_logging()
+    try:
+        configure_logging()
 
-    logger.info('Страт генерации страниц сайта')
+        logger.info('Страт генерации страниц сайта')
 
-    parser = create_arg_parser()
-    args = parser.parse_args()
-    logger.debug('argparse %s', args)
+        parser = create_arg_parser()
+        args = parser.parse_args()
+        logger.debug('argparse %s', args)
 
-    with_server = args.with_local_server
+        only_render = args.only_render
 
-    on_reload()
+        on_reload()
 
-    if with_server:
+        if only_render:
+            logger.info('Рендер выполнен. Завершаю работу')
+            raise KeyboardInterrupt
+
         server = Server()
         server.watch('templates/template.html', on_reload)
-        server.serve(root='docs/')
+        server.serve(root='docs/', default_filename='pages/index1.html')
+
+    except FileNotFoundError:
+        logger.critical(
+            'Для работы необходим файл с книгами %s в корне проекта',
+            'downloaded_books_info.json'
+        )
+        sys.exit()
+
+    except KeyboardInterrupt:
+        logger.warning('Завершение работы')
+

@@ -5,6 +5,7 @@ images/
 pages/
 __pycache__/
 *.json
+!downloaded_books_info.json
 *.log
 index.html
 !/docs/static/*
