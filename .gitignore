@@ -4,5 +4,4 @@ books/
 images/
 __pycache__/
 *.json
-!downloaded_books_info.json
 *.log
