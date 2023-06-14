@@ -2,10 +2,7 @@
 env/
 books/
 images/
-pages/
 __pycache__/
 *.json
 !downloaded_books_info.json
 *.log
-!/docs/static/*
-!/docs/pages/

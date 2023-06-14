@@ -41,10 +41,10 @@ def create_arg_parser():
                             Значение по умолчанию 1 '''
                             )
 
-    arg_parser.add_argument('--dest_folder', default='static/', metavar='',
+    arg_parser.add_argument('--dest_folder', default='media/', metavar='',
                             type=str,
                             help='''путь в какую папку будем сохранять результат. 
-                                Значение по умолчанию ./docs/static/ '''
+                                Значение по умолчанию ./media/ '''
                             )
 
     arg_parser.add_argument('--skip_imgs', action='store_true',

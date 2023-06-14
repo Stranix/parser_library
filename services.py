@@ -217,13 +217,13 @@ def save_file(folder: str, filename: str, content: bytes) -> str:
     :return: str - путь куда сохранил
     """
     logger.info(
-        'Сохраняем файл на диск в паку ./docs/%s с именем %s',
+        'Сохраняем файл на диск в паку %s с именем %s',
         folder,
         filename
     )
     path_to_save = os.path.join(folder, filename)
-    os.makedirs(f'./docs/{folder}', exist_ok=True)
-    with open(f'./docs/{path_to_save}', mode='wb') as file:
+    os.makedirs(folder, exist_ok=True)
+    with open(path_to_save, mode='wb') as file:
         file.write(content)
     logger.info('Сохранено')
     return path_to_save
@@ -246,7 +246,7 @@ def save_books_as_json_file(
     path_to_save = os.path.join(json_path, filename)
     os.makedirs(json_path, exist_ok=True)
     logger.debug('path_to_save: %s', path_to_save)
-    with open(path_to_save, mode='w') as file:
+    with open(path_to_save, mode='w', encoding='utf-8') as file:
         json.dump(books, file, indent=4, ensure_ascii=False)
 
     logger.info('Сохранено')
