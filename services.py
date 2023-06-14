@@ -349,64 +349,6 @@ def get_category_end_page(category_id: int) -> int:
     return get_number_of_pages_in_category(response.text)
 
 
-def save_rendered_page(
-        filename: str,
-        rendered_page: str,
-        folder: str = 'docs/pages/'
-):
-    """Сохраняет сгенерированную страницу html на диск.
-
-    :param filename: имя файла.
-    :param rendered_page: строка с html для сохранения.
-    :param folder: папка для сохранения.
-
-    """
-    logger.info('Сохраняю сгенерированную страницу на диск')
-    os.makedirs(folder, exist_ok=True)
-    path_to_save = os.path.join(folder, filename)
-
-    with open(path_to_save, 'w', encoding="utf8") as file:
-        file.write(rendered_page)
-    logger.info('Сохранил в : %s', path_to_save)
-
-
-def get_books_from_json_file(filename: str) -> dict:
-    """Получаем информацию о книгах из json файла.
-
-    :param filename: имя файла.
-
-    :return: словарь с информацией о книгах.
-    """
-
-    logger.info('Получаем информацию о книгах из json файла')
-    with open(filename, 'r', encoding='cp1251') as json_file:
-        books = json.load(json_file)
-
-    logger.info('Выполнено')
-    logger.debug('books: %s', books)
-
-    return books
-
-
-def get_jinja_template(filename: str) -> Template:
-    """Получаем jinja Template.
-
-    :param filename: имя файла шаблона.
-
-    :return: jinja Template
-    """
-    logger.info('Получаем jinja Template')
-    env = Environment(
-        loader=FileSystemLoader('.'),
-        autoescape=select_autoescape(['html', 'xml'])
-    )
-    template = env.get_template(filename)
-
-    logger.info('jinja Template получен')
-
-    return template
-
-
 def configure_logging():
     """Загружаем конфигурация логирования из json. """
     try:
